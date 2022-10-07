@@ -1,85 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import axios from 'axios';
+import { TempContext } from '../../context/TempContextProvider';
+import createDateString from '../../helpers/createDateString';
 import './ForecastTab.css';
 
-function ForecastTab() {
-  return (
-    <div className="tab-wrapper">
-      <article className="forecast-day">
-        <p className="day-description">
-          Maandag
-        </p>
+// LET OP: VOEG HIER JOUW API KEY IN
+const apyKey = "0ad979fb198c690a95aa58fa2c46e029\n";
 
-        <section className="forecast-weather">
-            <span>
-              12&deg; C
-            </span>
-          <span className="weather-description">
-              Licht Bewolkt
-            </span>
-        </section>
-      </article>
+function ForecastTab({ coordinates }) {
+    const [forecasts, setForecasts] = useState(null);
+    const [error, setError] = useState(false);
+    const [loading, toggleLoading] = useState(false);
 
-      <article className="forecast-day">
-        <p className="day-description">
-          Maandag
-        </p>
+    const { kelvinToMetric } = useContext(TempContext);
 
-        <section className="forecast-weather">
-            <span>
-              12&deg; C
-            </span>
-          <span className="weather-description">
-              Licht Bewolkt
-            </span>
-        </section>
-      </article>
+    useEffect(() => {
+        async function fetchData() {
+            setError(false);
+            toggleLoading(true);
 
-      <article className="forecast-day">
-        <p className="day-description">
-          Maandag
-        </p>
+            try {
+                const result = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${coordinates?.lat}&lon=${coordinates?.lon}&exclude=minutely,current,hourly&appid=${apyKey}&lang=nl`);
+                setForecasts(result.data.daily.slice(1, 6));
+                toggleLoading(false);
+            } catch (e) {
+                console.error(e);
+                setError(true);
+                toggleLoading(false);
+            }
+        }
 
-        <section className="forecast-weather">
-            <span>
-              12&deg; C
-            </span>
-          <span className="weather-description">
-              Licht Bewolkt
-            </span>
-        </section>
-      </article>
+        if (coordinates) {
+            fetchData();
+        }
 
-      <article className="forecast-day">
-        <p className="day-description">
-          Maandag
-        </p>
+    }, [coordinates]);
 
-        <section className="forecast-weather">
-            <span>
-              12&deg; C
-            </span>
-          <span className="weather-description">
-              Licht Bewolkt
-            </span>
-        </section>
-      </article>
+    return (
+        <div className="tab-wrapper">
+            {forecasts && forecasts.map((forecast) => {
+                return (
+                    <article className="forecast-day" key={forecast.dt}>
+                        <p className="day-description">
+                            {createDateString(forecast.dt)}
+                        </p>
+                        <section className="forecast-weather">
+              <span>
+                {kelvinToMetric(forecast.temp.day)}
+              </span>
+                            <span className="weather-description">
+                {forecast.weather[0].description}
+              </span>
+                        </section>
+                    </article>
+                )
+            })}
 
-      <article className="forecast-day">
-        <p className="day-description">
-          Maandag
-        </p>
+            {!forecasts && !error && (
+                <span className="no-forecast">
+          Zoek eerst een locatie om het weer voor deze week te bekijken
+        </span>
+            )}
 
-        <section className="forecast-weather">
-            <span>
-              12&deg; C
-            </span>
-          <span className="weather-description">
-              Licht Bewolkt
-            </span>
-        </section>
-      </article>
-    </div>
-  );
+            {error && <span>Er is iets misgegaan met het ophalen van de data.</span>}
+
+            {loading && (<span>Loading...</span>)}
+        </div>
+    );
 };
 
 export default ForecastTab;
