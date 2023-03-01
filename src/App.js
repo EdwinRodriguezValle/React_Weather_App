@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React,{useState, useEffect} from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,7 +13,7 @@ import TodayTab from './pages/todayTab/TodayTab';
 import kelvinToCelsius from './helpers/kelvinToCelsius';
 import './App.css';
 
-const apyKey = "0ad979fb198c690a95aa58fa2c46e029\n";
+const apyKey = "45439111b8ed4c7208c86ef8f60525f8";
 
 function App() {
   const [weatherData, setWeatherData] = useState({});
@@ -26,7 +26,7 @@ function App() {
 
       try {
         const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${location},nl&appid=${apyKey}&lang=nl`);
-        //const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${location},nl&appid=${process.env.REACT_APP_API_KEY}&lang=nl`);
+        //const result = await anpm startxios.get(`https://api.openweathermap.org/data/2.5/weather?q=${location},nl&appid=${process.env.REACT_APP_API_KEY}&lang=nl`);
         console.log(result.data);
         setWeatherData(result.data);
       } catch (e) {
